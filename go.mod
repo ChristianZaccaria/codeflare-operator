@@ -20,7 +20,10 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
-replace sigs.k8s.io/custom-metrics-apiserver => sigs.k8s.io/custom-metrics-apiserver v1.25.1-0.20230306170449-63d8c93851f3
+replace (
+	github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153 => github.com/elazarl/goproxy v0.0.0-20231117061959-7cc037d33fb5
+	sigs.k8s.io/custom-metrics-apiserver => sigs.k8s.io/custom-metrics-apiserver v1.25.1-0.20230306170449-63d8c93851f3
+)
 
 require (
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
