@@ -169,7 +169,7 @@ build: modules fmt vet ## Build manager binary.
 		-o bin/manager main.go
 
 .PHONY: run
-run: modules manifests fmt vet ## Run a controller from your host.
+run: modules manifests fmt vet ## Run a controller from your host
 	go run ./main.go
 
 .PHONY: image-build
