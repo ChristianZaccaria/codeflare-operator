@@ -19,5 +19,6 @@ resources:
   version: v1
   webhooks:
     defaulting: true
+    validating: true # or might be validation: true
     webhookVersion: v1
 version: "3"

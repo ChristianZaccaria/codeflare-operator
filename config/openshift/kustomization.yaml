@@ -19,4 +19,5 @@ bases:
 
 patches:
 - path: manager_webhook_patch.yaml
-- path: webhookcainjection_patch.yaml
+- path: webhookcainjection_mpatch.yaml
+- path: webhookcainjection_vpatch.yaml
