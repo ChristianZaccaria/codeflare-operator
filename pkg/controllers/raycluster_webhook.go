@@ -23,14 +23,14 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"github.com/project-codeflare/codeflare-operator/pkg/config"
-	"k8s.io/apimachinery/pkg/util/validation/field"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -42,21 +42,24 @@ func SetupRayClusterWebhookWithManager(mgr ctrl.Manager, cfg *config.KubeRayConf
 		WithDefaulter(&rayClusterDefaulter{
 			Config: cfg,
 		}).
-		WithValidator(&rayClusterValidator{}).
+		WithValidator(&rayClusterValidator{
+			Config: cfg,
+		}).
 		Complete()
 }
 
 // +kubebuilder:webhook:path=/mutate-ray-io-v1-raycluster,mutating=true,failurePolicy=fail,sideEffects=None,groups=ray.io,resources=rayclusters,verbs=create;update,versions=v1,name=mraycluster.kb.io,admissionReviewVersions=v1
-//+kubebuilder:webhook:path=/validate-ray-io-v1-raycluster,mutating=false,failurePolicy=fail,sideEffects=None,groups=ray.io,resources=rayclusters,verbs=create;update,versions=v1,name=vraycluster.kb.io,admissionReviewVersions=v1
+// +kubebuilder:webhook:path=/validate-ray-io-v1-raycluster,mutating=false,failurePolicy=fail,sideEffects=None,groups=ray.io,resources=rayclusters,verbs=create;update,versions=v1,name=vraycluster.kb.io,admissionReviewVersions=v1
 
 type rayClusterDefaulter struct {
 	Config *config.KubeRayConfiguration
 }
-type rayClusterValidator struct{}
+type rayClusterValidator struct {
+	Config *config.KubeRayConfiguration
+}
 
 var _ webhook.CustomDefaulter = &rayClusterDefaulter{}
 var _ webhook.CustomValidator = &rayClusterValidator{}
-
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *rayClusterDefaulter) Default(ctx context.Context, obj runtime.Object) error {
@@ -157,7 +160,7 @@ func (v *rayClusterValidator) ValidateCreate(ctx context.Context, obj runtime.Ob
 func (v *rayClusterValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	newRayCluster := newObj.(*rayv1.RayCluster)
 	if !newRayCluster.DeletionTimestamp.IsZero() {
-		 // Object is being deleted, skip validations
+		// Object is being deleted, skip validations
 		return nil, nil
 	}
 	warnings, err := v.ValidateCreate(ctx, newRayCluster)
